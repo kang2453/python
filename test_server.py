@@ -98,8 +98,10 @@ def handle_client(client_reader, client_writer):
         client_writer.write(response.encode())
 
 
+
 def main():
     loop = asyncio.get_event_loop()
+    asyncio.ensure_future(bug())
     f = asyncio.start_server(accept_client, host='192.168.207.50', port=12345)
     loop.run_until_complete(f)
     loop.run_forever()
