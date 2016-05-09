@@ -18,16 +18,17 @@ def client():
 		print("< " + msgback )
 		return msgback
 
+	recv()
 	# send a line
-	send('add 1 2')
+	# send('add 1 2')
 	msg = yield from recv()
-
-	send("repeat 5 hello")
+	# print(msg.decode('utf-8'))
+	# send("repeat 5 hello")
 	msg = yield from recv()
-	while True:
-		msg = yield from recv()
-		if msg == 'end':
-			break
+	# while True:
+	# 	msg = yield from recv()
+	# 	if msg == 'end':
+	# 		break
 
 	writer.close()
 	yield from asyncio.sleep(0.5)

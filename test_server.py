@@ -83,8 +83,7 @@ def handle_client(client_reader, client_writer):
     while True:
         i = i + 1
         # wait for input from client
-        data = yield from asyncio.wait_for(client_reader.readline(),
-                                           timeout=10.0)
+        data = yield from asyncio.wait_for(client_reader.readline(),timeout=10.0)
         if data is None:
             log.warning("Received no data")
             # exit echo loop and disconnect
