@@ -13,13 +13,13 @@ start = 0
 def forloop():
 	start = timeit.default_timer()
 	for url in urls:
-	    # print('Start', url)
-	    try:
-	        urlopen(url)
-	    except :
-		    print(url , " is Exception")
-		    continue
-	    print('Done', url)
+		try:
+			# urlopen(url)
+			urlopen(url)
+		except :
+			print(url , " is Exception")
+			continue
+		print('Done', url)
 
 
 def fetch(url):
