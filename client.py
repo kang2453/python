@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+# 2016.05.09 by kang2453
 from threading import Thread
 import time
 import asyncio
