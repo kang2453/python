@@ -1,43 +1,42 @@
 # -*- coding: utf-8 -*-
-import aiohttp
+import time
 import asyncio
-import timeit
-from urllib.request import urlopen
-from concurrent.futures import ThreadPoolExecutor
-from urllib.request import urlopen
+print(asyncio)
 
-urls = ['http://b.ssut.me', 'https://google.com', 'https://apple.com', 'https://ubit.info', 'https://github.com/ssut']
+N_CONSUMERS = 10
+N_PRODUCERS = 1
+N_ITEMS = 100000  # Per producer
+Q_SIZE = 1
 
-start = 0
+@asyncio.coroutine
+def producer(q):
+    for i in range(N_ITEMS):
+        yield from q.put(i)
+    for i in range(N_CONSUMERS):
+        yield from q.put(None)
 
-def forloop():
-	start = timeit.default_timer()
-	for url in urls:
-		try:
-			# urlopen(url)
-			urlopen(url)
-		except :
-			print(url , " is Exception")
-			continue
-		print('Done', url)
+@asyncio.coroutine
+def consumer(q):
+    while True:
+        i = yield from q.get()
+        if i is None:
+            break
+        # print("Que: %d" % i)
 
+def main():
+    q = asyncio.Queue(Q_SIZE)
+    loop = asyncio.get_event_loop()
+    consumers = [consumer(q) for _ in range(N_CONSUMERS)]
+    producers = [producer(q) for _ in range(N_PRODUCERS)]
+    t0 = time.time()
+    loop.run_until_complete(asyncio.gather(*consumers, *producers))
+    t1 = time.time()
+    dt = t1 - t0
+    print(N_CONSUMERS, 'consumers;',
+          N_PRODUCERS, 'producers;',
+          N_ITEMS, 'items/producer;',
+          Q_SIZE, 'maxsize;',
+          '%.3f total seconds;' % dt,
+          '%.3f usec per item.' % (1e6*dt/N_ITEMS/N_PRODUCERS))
 
-def fetch(url):
-	try:
-		urlopen(url)
-		print('Done', url)
-	except :
-		print(url, " is Exception")
-
-
-def threadExec():
-	with ThreadPoolExecutor(max_workers=5) as executor:
-		for url in urls:
-			executor.submit(fetch, url)
-
-if __name__ == '__main__':
-	start = timeit.default_timer()
-	# forloop()
-	threadExec()
-	duration = timeit.default_timer() - start
-	print("total : %d" % duration)
+main()
