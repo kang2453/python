@@ -2,85 +2,57 @@
 import codecs
 import threading
 import time
-#from Queue import Queue
-#import logging
 import log
+from collections import deque
 
-import sock
+import recvSocket
+import sendSocket
 import sitelist
+import msgHandle
+
+import config
 
 # option담을 DIC
-Option = {}
-
-#각각 옵션 DIC
-cmddic   = {}
-proxydic  = {}
-sitedic   = {}
+Option = None
 
 # thread 객체 담을곳
 threads = []
-
 g_alive = True
 
 
-logger = log.Init(".", "logging.txt")
+configFileName = 'config.conf'
 
 
-def ParsingOption(type, msg):
-    tmp = msg.split('=')
-    if len(tmp) == 2:
-        if type =='cmd':
-            cmddic[tmp[0]] = tmp[1]
-        elif type == 'proxy':
-            proxydic[tmp[0]] = tmp[1]
-        elif type == 'sitelist':
-            sitedic[tmp[0]] = tmp[1]
 
 
-def getOption():
-    with codecs.open('config.txt', 'r', encoding='utf-8') as f:
-        type = ""
-        while True:
-            msg = f.readline().strip()
-            if not msg:
-                break
 
-            if msg[0] == '#':
-                continue
-
-            if msg.find("[CMD]") != -1:
-                type = 'cmd'
-                continue
-            elif msg.find("[PROXY]") != -1:
-                type = 'proxy'
-                continue
-            elif msg.find("[SITELIST]") != -1:
-                type = 'sitelist'
-                continue
-
-            ParsingOption(type, msg)
-        #print("SiteList Dic", sitedic)
-        Option['cmd'] = cmddic
-        Option['proxy'] = proxydic
-        Option['sitelist'] = sitedic
 
 def gAlive(type):
     g_alive = type
 
 def main():
-    logger.info("MAIN START")
-    #Que = Queue( maxsize = 1000 )
-    Que = []
-    #print("site option: ", Option['sitelist'])
-    #print("Site Dic : ", sitedic)
-    siteThr = threading.Thread(target=sitelist.main, args=(Option, Que ))
-    #sockThr = threading.Thread(target=sock.main, args=(Option,Que ))
+    recvQue = deque( )
+    msgQue = deque( )
+    sendQue = deque( )
 
+    logThr = threading.Thread(target=log.main, args=('logger.log', ))
+    msgHandleThr = threading.Thread(target=msgHandle.main, args=(Option, recvQue, msgQue))
+    siteThr = threading.Thread(target=sitelist.main, args=(Option, msgQue, sendQue))
+
+    sendSockThr = threading.Thread(target=sendSocket.main, args=(Option, sendQue))
+    recvSockThr = threading.Thread(target=recvSocket.main, args=(Option, recvQue))
+
+    logThr.daemon = True
     siteThr.daemon = True
-    #sockThr.daemon = True
+    recvSockThr.daemon = True
+    sendSockThr.daemon = True
+    msgHandleThr.daemon = True
 
+    logThr.start()
     siteThr.start()
-    #sockThr.start()
+    msgHandleThr.start()
+    sendSockThr.start()
+    recvSockThr.start()
 
     # threads.append(sockThr)
     # threads.append(siteThr)
@@ -90,18 +62,18 @@ def main():
 
     cnt = 0
     while g_alive:
-        #print("main while", cnt )
         if cnt == 2:
             # gAlive(False)
             sitelist.alive(False)
-            sock.alive(False)
+            recvSocket.alive(False)
+            sendSocket.alive(False)
+            msgHandle.alive(False)
+            log.alive(False)
             break
         cnt += 1
         time.sleep(1)
-    logger.info("MAIN END")
+    log.PrintLog("MAIN END")
 
 if __name__ == "__main__":
-    logger = log.Init("./log","MainLogger.log")
-    log.setLevel('INFO',logger)
-    getOption()
+    Option = config.getOption('conf/config.conf')
     main()

@@ -1,24 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import time
-
-from Main import getOption
-
-HOST    = '192.168.207.50'
-PORT    = 8080
-THREADNUM = 10
-CNT     = 1000
-
-TYPE    = 'http'
-VERSION = 9
-REQTYPE = "LM"
-LDATE   =   "20160401000000"
+import log
 
 
 
 ALIVE = True
 siteDic = {}
-
+cmdDic  = {}
+proxyDic = {}
 
 # httpGetFileListUrl  = 'http://192.168.207.50:8080/70WKDownloader/getFileList.aspx?id=webkeeper&pwd=vhvrn755&version=8&reqtype=LM&uid=fpwlkb0&rcvname=wkAgent&ldate=20160125164427&SN='
 # httpsGetFileListUrl = 'https://192.168.207.50:8443/70WKDownloader/getFileList.aspx?id=webkeeper&pwd=vhvrn755&version=8&reqtype=LM&uid=fpwlkb0&rcvname=wkAgent&ldate=20160125164427&SN='
@@ -42,8 +32,10 @@ def httpGetFileList(cnt):
     i = 0
     try:
        while i < cnt:
-           for http in TYPE:
-                print("httpGetFileList", i)
+           for http in siteDic['TYPE']:
+                # print("httpGetFileList", i)
+                msg = 'httpGetFileList' + str(i)
+                log.PrintLog(msg)
                 i += 1
     except:
         print("Exception... httpGetFileList" )
@@ -57,46 +49,40 @@ def httpTest(cnt):
 
 def print_option():
     print("========= SiteList ======")
-    print("Type     : ", TYPE)
-    print("ThreadNum: ", THREADNUM )
-    print("Cnt      : ", CNT)
-    print("VERSION  : ", VERSION)
-    print("REQTYPE  : ", REQTYPE)
-    print("LDATE    : ", LDATE)
+    print("Type     : ", siteDic['TYPE'])
+    print("ThreadNum: ", siteDic['THREADNUM'] )
+    print("Cnt      : ", siteDic['CNT'])
+    print("VERSION  : ", siteDic['VERSION'])
+    print("REQTYPE  : ", siteDic['REQTYPE'])
+    print("LDATE    : ", siteDic['LDATE'])
     print("========= ProxyServer ======")
-    print("HOST     : ", HOST )
-    print("PORT     : ", PORT )
+    print("HOST     : ", proxyDic['PROXYSERVER'] )
+    print("PORT     : ", proxyDic['PROXYPORT'] )
 
 def getOption(option):
     print(option)
-    siteDic = option['sitelist']
-    TYPE    = siteDic['TYPE']
-    REQTYPE = siteDic['REQTYPE']
-    LDATE   = siteDic['LDATE']
-    VERSION = siteDic['VERSION']
-    THREADNUM=siteDic['THREADNUM']
-    CNT     = siteDic['CNT']
+    global siteDic
+    global cmdDic
+    global proxyDic
 
-    cmdDic = option['proxy']
-    HOST = cmdDic['PROXYSERVER']
-    PORT = cmdDic['PROXYPORT']
-    
+    siteDic = option['sitelist']
+    proxyDic= option['proxy']
     return True
 
-def main(option, Que):
+def main(option, msgQue, sendQue):
     rv = getOption(option)
     if rv is False:
         #print("SiteList Thr option parsing Error")
         alive(False)
         SystemExit(0)
 
-    print_option()
-
-    httpTest(int(CNT)) 
+    # print_option()
+    print('cnt : ', siteDic['CNT'])
+    httpTest(int(siteDic['CNT']))
     time.sleep(1)
 
     #print("SiteList Thread END!!!")
 
 
 if __name__ == "__main__":
-    main(option,Que )
+    main(option, msgQue, sendQue )

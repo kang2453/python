@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import time
 
 HOST = None
@@ -14,7 +13,7 @@ def alive(type):
 
 
 
-def main(option, Que):
+def main(option, sendQue):
     cnt = 0
     while ALIVE:
         #print("socket main ", cnt)
@@ -25,4 +24,4 @@ def main(option, Que):
     #print("Socket Thread END!!!")
 
 if __name__ == "__main__":
-    main(option, Que)
+    main(option, sendQue)
