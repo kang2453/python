@@ -1,27 +1,54 @@
 # -*- coding: utf-8 -*-
 import time
-
-HOST = None
-PORT = None
-
-ALIVE = True
-
-
-def alive(type):
-    print("Socket Alive END")
-    ALIVE = type
+import threading
+import log
+import config
+from collections import deque
 
 
+class  msgHandleThread( threading.Thread ):
+    def __init__(self, recvQue, msgQue):
+        threading.Thread.__init__(self)
+        self.recvQue = recvQue
+        self.msgQue  = msgQue
+        self.alive   = True
+        self.log     = log.logger
 
-def main(option, recvQue, msgQue):
-    cnt = 0
-    while ALIVE:
-        #print("socket main ", cnt)
-        cnt += 1
-        if cnt == 10 :
-            break
-        time.sleep(1)
-    #print("Socket Thread END!!!")
+    def isAlive(self):
+        return self.alive
 
-if __name__ == "__main__":
-    main(option, recvQue, msgQue)
+    def setAlive(self, type ):
+        self.alive = type
+
+
+    def msgHandle(self, cmd, value):
+        if cmd == 'OPTION':
+            # 옵션은 여기에서 변경하고
+            # sitelist.py에서는 다시 읽으라고 한다.
+            config.update(value)
+            self.msgQue.append('RELOAD')
+        # 명령 수행 MSG
+        elif cmd == 'CMD':
+            self.msgQue.append(value)
+        # 업데이트 관련 MSG
+        elif cmd == 'UPDATE':
+            self.msgQue.append(value)
+        else:
+            log.PrintLog("%s:%s msg is not define" % (cmd, value))
+
+
+
+
+    def run(self):
+        log.PrintLog("msgHandler START")
+        while self.alive:
+            if len(self.recvQue) > 0:
+                data = self.recvQue.popleft()
+                msg  = data.split('|')
+                self.msgHandle(msg[0], msg[1])
+            else:
+                time.sleep(0.5)
+
+        log.PrintLog("msgHandler is Exit")
+
+

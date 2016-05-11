@@ -15,7 +15,7 @@ class recvSockThread( threading.Thread ):
         self.recvQue = recvQue
         self.alive   = True
         self.cmdDic  = self.option['cmd']
-        self.host    = ''
+        self.host    = '192.168.207.50'
         self.port    = 10001
         self.log     = log.logger
         self.sock = socket(AF_INET, SOCK_STREAM)
@@ -30,18 +30,13 @@ class recvSockThread( threading.Thread ):
         retVal = True
         try:
             self.sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-            HOST = self.sock.gethostbyname(self.sock.gethostname())
-            ADDR = (self.host, self.port )
+            ADDR = (self.host, self.port)
             self.sock.bind(ADDR)
             self.sock.listen(5)
         except socket.error as msg :
             log.PrintLog("makeSocket is Fail(%s)"% (msg))
             retVal = False
         return retVal
-
-    def InsertQue(self, data):
-        self.recvQue.append(data)
-
 
     def run(self):
         log.PrintLog("recvSockThr START")
@@ -54,15 +49,16 @@ class recvSockThread( threading.Thread ):
                     log.PrintLog("%s is Connected" % str(addrInfo))
                     data = cliSock.recv(BUFSIZE)
                     if data:
-                        log.PrintLog("Recv Msg: %s" % data.decode('utf-8') )
                         cmd = data.split('|')
-                        msg = cmd[0] + "|OK"
-                        print("send msg %s" % msg )
-                        cliSock.send(msg.encode('utf-8'))
-                        cliSock.close()
+                        if len(cmd) == 2:
+                            msg = cmd[0] + "|OK"
+                            cliSock.send(msg.encode('utf-8'))
+                            self.recvQue.append(data.decode('utf-8'))
+                        else:
+                            log.PrintLog("%s msg is incorrect: %s" % (msg, str(addrInfo)))
                     else:
-                        self.cliSock.close()
-                        log.PrintLog("%s is disconnected" % str(addrInfo))
+                        log.PrintLog("%s msg is incorrect: %s" % (msg, str(addrInfo)))
+                    cliSock.close()
                 self.sock.close()
         except:
             log.PrintLog("RecvSocket Exception....")

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import codecs
+import os
 
 # option담을 DIC
 Option = {}
@@ -9,6 +10,10 @@ Option = {}
 cmddic   = {}
 proxydic  = {}
 sitedic   = {}
+
+configDir  = "conf"
+configFile = "config.conf"
+
 
 def ParsingOption(type, msg):
     tmp = msg.split('=')
@@ -21,7 +26,11 @@ def ParsingOption(type, msg):
             sitedic[tmp[0]] = tmp[1]
 
 def getOption(filename):
-    with codecs.open(filename, 'r', encoding='utf-8') as f:
+    configFile = filename
+    if os.path.exists(configDir) is False:
+        os.mkdir(configDir)
+    filePath = configDir + os.sep + filename
+    with codecs.open(filePath, 'r', encoding='utf-8') as f:
         type = ""
         while True:
             msg = f.readline().strip()
@@ -48,6 +57,33 @@ def getOption(filename):
         Option['sitelist'] = sitedic
 
     return Option
+
+
+def update( value ):
+    data = value.split('=')
+    if data[0] == 'CMD':
+        pass
+    elif data[0] == 'PROXY':
+        pass
+    elif data[0] == 'SITELIST':
+        pass
+
+def confDic( f, dic ):
+    pass
+
+def configWrite():
+    filePath = configDir + os.sep + configFile
+    with codecs.open(filePath, 'a', encoding='utf-8') as f:
+        f.writeline('#Config Setting')
+        f.writeline('[CMD]')
+        confDic(f, cmddic)
+        f.writeline('[PROXY]')
+        confDic(f,proxydic)
+        f.writeline('[SITELIST]')
+        confDic(f,sitedic)
+
+
+
 
 
 
