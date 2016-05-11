@@ -4,6 +4,7 @@ import time
 import logging
 import logging.handlers
 from collections import deque
+import os
 
 logQue = deque()
 logger = logging.getLogger()
@@ -16,6 +17,8 @@ def alive(type):
 
 def Init(filepath, filename):
     fileMaxByte = 1024 * 1024 * 10  #10M
+    if os.path.exists(filepath) is False:
+	    os.mkdir(filepath)
     filePath = filepath + '/' + filename
 
     # logger = logging.getLogger()
