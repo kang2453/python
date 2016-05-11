@@ -7,7 +7,7 @@ import asyncio
 
 @asyncio.coroutine
 def client():
-	reader, writer = yield from asyncio.streams.open_connection("192.168.207.50", 12345)
+	reader, writer = yield from asyncio.streams.open_connection("192.168.207.50", 10001)
 
 	def send(msg):
 		print("> "+ msg)
@@ -18,13 +18,12 @@ def client():
 		print("< " + msgback )
 		return msgback
 
-	recv()
 	# send a line
 	# send('add 1 2')
 	msg = yield from recv()
-	# print(msg.decode('utf-8'))
+	print(msg.decode('utf-8'))
 	# send("repeat 5 hello")
-	msg = yield from recv()
+	# msg = yield from recv()
 	# while True:
 	# 	msg = yield from recv()
 	# 	if msg == 'end':
