@@ -1,37 +1,73 @@
 # -*- coding: utf-8 -*-
 
+import threading
 import time
 import log
+from socket import *
+import sys
 
-HOST = None
-PORT = None
+BUFSIZE = 1024
 
-ALIVE = True
+class recvSockThread( threading.Thread ):
+    def __init__(self, option, recvQue):
+        threading.Thread.__init__(self)
+        self.option = option
+        self.recvQue = recvQue
+        self.alive   = True
+        self.cmdDic  = self.option['cmd']
+        self.host    = ''
+        self.port    = 10001
+        self.log     = log.logger
+        self.sock = socket(AF_INET, SOCK_STREAM)
 
-dic = {}
+    def isAlive(self):
+        return self.alive
 
-def alive(type):
-    print("Socket Alive END")
-    ALIVE = type
+    def setAlive(self, type):
+        self.alive = type
 
-def getOption(option):
-    dic= option['cmd']
-    log.PrintLog(dic)
+    def makeSocket(self):
+        try:
+            self.sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+            HOST = self.sock.gethostbyname(self.sock.gethostname())
+            print("host : ", self.host)
+            ADDR = (self.host, self.port )
+            self.sock.bind(ADDR)
+            self.sock.listen(5)
+        except socket.error as msg :
+            log.PrintLog("makeSocket is Fail(%s)"% (msg))
+
+    def InsertQue(self, data):
+        self.recvQue.append(data)
+
+
+    def run(self):
+        log.PrintLog("recvSockThr START")
+        try:
+            # makeSocket()
+            self.sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+            # HOST = self.sock.gethostbyname(self.sock.gethostname())
+            # print("host : ", self.host)
+            ADDR = (self.host, self.port )
+            self.sock.bind(ADDR)
+            self.sock.listen(5)
+            while self.alive :
+                cliSock, addrInfo = self.sock.accept()
+                log.PrintLog("%s is Connected" % str(addrInfo))
+                data = cliSock.recv(BUFSIZE)
+                if data:
+                    log.PrintLog("Recv Msg: %s" % data )
+                    cmd = data.split('|')
+                    msg = cmd + "|OK"
+                    cliSock.send(msg)
+                    cliSock.close()
+                else:
+                    self.cliSock.close()
+                    log.PrintLog("%s is disconnected" % str(addrInfo))
+            self.sock.close()
+        except:
+            log.PrintLog("RecvSocket Exception....")
+        log.PrintLog("recvSockThr END")
 
 
 
-def main(option, recvQue):
-    rv = getOption(option)
-    if rv is False:
-        log.PrintLog("get option fail")
-    cnt = 0
-    while ALIVE:
-        #print("socket main ", cnt)
-        cnt += 1
-        if cnt == 10 :
-            break
-        time.sleep(1)
-    log.PrintLog("recvSockThr END")
-
-if __name__ == "__main__":
-    main(option, recvQue)
