@@ -34,7 +34,7 @@ class logThread(threading.Thread):
             os.mkdir(self.filepath)
         logfilePath = self.filepath + self.sep + self.filename
 
-        formatter =  logging.Formatter("%(asctime)s %(message)s")
+        formatter =  logging.Formatter("%(asctime)s %(message)s","%Y-%m-%d %H:%M:%S")
         fileHandler = logging.handlers.RotatingFileHandler(logfilePath, maxBytes=self.filesize, backupCount=10)
         streamHandler = logging.StreamHandler()
 

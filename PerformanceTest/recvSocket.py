@@ -45,20 +45,19 @@ class recvSockThread( threading.Thread ):
             retVal = self.makeSocket()
             if retVal is True:
                 while self.alive :
-                    cliSock, addrInfo = self.sock.accept()
-                    log.PrintLog("%s is Connected" % str(addrInfo))
-                    data = cliSock.recv(BUFSIZE)
-                    if data:
-                        cmd = data.split('|')
-                        if len(cmd) == 2:
-                            msg = cmd[0] + "|OK"
-                            cliSock.send(msg.encode('utf-8'))
-                            self.recvQue.append(data.decode('utf-8'))
-                        else:
-                            log.PrintLog("%s msg is incorrect: %s" % (msg, str(addrInfo)))
-                    else:
-                        log.PrintLog("%s msg is incorrect: %s" % (msg, str(addrInfo)))
-                    cliSock.close()
+                    try:
+                        cliSock, addrInfo = self.sock.accept()
+                        data = cliSock.recv(BUFSIZE)
+                        log.PrintLog("%s is Connected(%s)" % (str(addrInfo),data))
+                        if data:
+                            cmd = data.split('|')
+                            if len(cmd) == 2:
+                                msg = cmd[0] + "|OK"
+                                cliSock.send(msg.encode('utf-8'))
+                                self.recvQue.append(data.decode('utf-8'))
+                        cliSock.close()
+                    except :
+                        log.PrintLog("%s msg is incorrect: %s" % (msg, str(addrInfo[0])))
                 self.sock.close()
         except:
             log.PrintLog("RecvSocket Exception....")

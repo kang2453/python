@@ -38,15 +38,14 @@ def main():
     # recvSockThr = threading.Thread(target=recvSocket.main, args=(Option, recvQue))
 
     logThr =  log.logThread( 'log', 'logger.log')
-    msgHandlerThr = msgHandle.msgHandleThread(recvQue, msgQue)
-
     sitelistThr = sitelist.sitelistThread( Option, msgQue, sendQue )
+    msgHandlerThr = msgHandle.msgHandleThread(recvQue, msgQue)
     recvSockThr = recvSocket.recvSockThread(Option, recvQue)
 
     logThr.start()
     sitelistThr.start()
-    recvSockThr.start()
     msgHandlerThr.start()
+    recvSockThr.start()
 
 
     cnt = 0
@@ -64,5 +63,5 @@ def main():
     log.PrintLog("MAIN END")
 
 if __name__ == "__main__":
-    Option = config.getOption('conf/config.conf')
+    Option = config.getOption('config.conf')
     main()
