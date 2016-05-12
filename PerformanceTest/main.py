@@ -3,6 +3,9 @@ import codecs
 import threading
 import time
 import log
+import re
+import urllib
+import  socket
 from collections import deque
 
 import recvSocket
@@ -18,7 +21,7 @@ Option = None
 # thread 객체 담을곳
 threads = []
 g_alive = True
-
+BUFSIZE=1024
 
 configFileName = 'config.conf'
 
@@ -47,19 +50,30 @@ def main():
     msgHandlerThr.start()
     recvSockThr.start()
 
+    MYIP=  socket.gethostbyname(socket.gethostname())
+    ADDR=(MYIP, 10011)
+    msg =  "CONNECT|{}".format(MYIP)
+    # log.PrintLog(msg)
 
-    cnt = 0
     while g_alive:
-        if cnt == 100:
-            gAlive(False)
-            sitelist.alive(False)
-            recvSockThr.setAlive(False)
-            sendSocket.alive(False)
-            msgHandle.alive(False)
-            log.alive(False)
-            break
-        cnt += 1
-        time.sleep(1)
+        # try:
+        print("Main Loop ")
+        #     sock = socket(socket.AF_INET, socket.SOCK_STREAM)
+        #     sock.connect(ADDR)
+        #     sock.send(msg.encode('utf-8'))
+        #     data = sock.recv(BUFSIZE)
+        #     log.PrintLog("%s -> %s".format(msg, data.decode('utf-8')))
+        #     time.sleep(10)
+        # except socket.timeout:
+        #     pass
+        # except socket.error as errMsg:
+        #     log.PrintLog(errMsg.string)
+        #     recvSockThr.setAlive(False)
+        #     msgHandlerThr.setAlive(False)
+        #     sitelistThr.setAlive(False)
+        #     logThr.setAlive(False)
+        #     g_alive = False
+        time.sleep(10)
     log.PrintLog("MAIN END")
 
 if __name__ == "__main__":

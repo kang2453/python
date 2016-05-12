@@ -22,12 +22,12 @@ class  msgHandleThread( threading.Thread ):
 
 
     def msgHandle(self, cmd, value):
-        log.PrintLog("msg: {}:{}".format(cmd,value))
         if cmd == 'OPTION':
             # 옵션은 여기에서 변경하고
             # sitelist.py에서는 다시 읽으라고 한다.
+            # value로 받은거 그대로 저장함
             config.update(value)
-            self.msgQue.append('RELOAD')
+            self.msgQue.append('RELOAD!config.conf')
         # 명령 수행 MSG
         elif cmd == 'CMD':
             self.msgQue.append(value)
@@ -45,7 +45,6 @@ class  msgHandleThread( threading.Thread ):
         while self.alive:
             if len(self.recvQue) > 0:
                 data = self.recvQue.popleft()
-                log.PrintLog("recv: {}".format(data))
                 msg  = data.split('|')
                 self.msgHandle(msg[0], msg[1])
             else:

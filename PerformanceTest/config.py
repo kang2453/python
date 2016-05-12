@@ -2,6 +2,9 @@
 
 import codecs
 import os
+import log
+import sys
+
 
 # option담을 DIC
 Option = {}
@@ -60,13 +63,16 @@ def getOption(filename):
 
 
 def update( value ):
-    data = value.split('=')
-    if data[0] == 'CMD':
-        pass
-    elif data[0] == 'PROXY':
-        pass
-    elif data[0] == 'SITELIST':
-        pass
+    filePath = configDir + os.sep + configFile
+    try:
+        with codecs.open(filePath, 'w', encoding='utf-8') as f:
+            f.write(value)
+            # confList = value.split()
+            # for msg in confList:
+            #     print(type(msg))
+            #     f.writeline(msg.encode('utf-8'))
+    except :
+        log.PrintLog("conf Update Except....")
 
 def confDic( f, dic ):
     pass
@@ -85,12 +91,3 @@ def configWrite():
 
 
 
-
-
-def main():
-    pass
-
-
-
-if __name__ == '__main__':
-    main()

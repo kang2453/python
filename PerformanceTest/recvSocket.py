@@ -48,13 +48,12 @@ class recvSockThread( threading.Thread ):
                     try:
                         cliSock, addrInfo = self.sock.accept()
                         data = cliSock.recv(BUFSIZE)
-                        log.PrintLog("%s is Connected(%s)" % (str(addrInfo),data))
+                        log.PrintLog("%s is Connected(%s)" % (str(addrInfo), data))
                         if data:
                             cmd = data.split('|')
-                            if len(cmd) == 2:
-                                msg = cmd[0] + "|OK"
-                                cliSock.send(msg.encode('utf-8'))
-                                self.recvQue.append(data.decode('utf-8'))
+                            self.recvQue.append(data.decode('utf-8'))
+                            msg = cmd[0] + "|OK"
+                            cliSock.send(msg.encode('utf-8'))
                         cliSock.close()
                     except :
                         log.PrintLog("%s msg is incorrect: %s" % (msg, str(addrInfo[0])))
