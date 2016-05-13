@@ -217,15 +217,16 @@ class sitelistThread(threading.Thread):
             for thr in threadList:
                 thr.start()
 
-            num = 0
             cnt = len(threadList)
             while True:
+                num = 0
                 for thr in threadList:
                     if thr.isAlive() is False:
                         num += 1
                 if num == cnt :
                     break
-                time.sleep(0.5)
+                log.PrintLog("GetFileListThread is Executing...")
+                time.sleep(1)
             endTime = time.time()
             log.PrintLog("httpTest Time is {}".format( endTime-startTime))
         except Exception, e:
