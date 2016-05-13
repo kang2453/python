@@ -236,10 +236,10 @@ class sitelistThread(threading.Thread):
     def deleteFiles(self):
         filePath = siteDic['DBDIR']
         if os.path.exists(filePath) is True :
-            fileList = os.listdir(filePath)
-            for filename in fileList:
-                full_filename = os.path.join(filePath, filename)
-                os.remove(full_filename)
+            dirList = os.listdir(filePath)
+            for dir in dirList:
+                fullDir = filePath + os.sep + dir
+                shutil.rmtree(fullDir)
 
     def print_option(self):
         print("========= SiteList ======")
