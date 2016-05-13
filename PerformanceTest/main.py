@@ -33,13 +33,6 @@ def main():
     msgQue = deque()
     sendQue = deque()
 
-    # logThr = threading.Thread(target=log.main, args=('logger.log', ))
-    # msgHandleThr = threading.Thread(target=msgHandle.main, args=(Option, recvQue, msgQue))
-    # siteThr = threading.Thread(target=sitelist.main, args=(Option, msgQue, sendQue))
-
-    # sendSockThr = threading.Thread(target=sendSocket.main, args=(Option, sendQue))
-    # recvSockThr = threading.Thread(target=recvSocket.main, args=(Option, recvQue))
-
     logThr =  log.logThread( 'log', 'logger.log')
     sitelistThr = sitelist.sitelistThread( Option, msgQue, sendQue )
     msgHandlerThr = msgHandle.msgHandleThread(recvQue, msgQue)
@@ -50,29 +43,24 @@ def main():
     msgHandlerThr.start()
     recvSockThr.start()
 
-    MYIP=  socket.gethostbyname(socket.gethostname())
-    ADDR=(MYIP, 10011)
-    msg =  "CONNECT|{}".format(MYIP)
+    myip=  recvSocket.myip()
+    ADDR=('192.168.207.50', 10011)
+    msg =  "CONNECT|{}".format(myip)
     # log.PrintLog(msg)
 
     while g_alive:
-        # try:
-        print("Main Loop ")
-        #     sock = socket(socket.AF_INET, socket.SOCK_STREAM)
-        #     sock.connect(ADDR)
-        #     sock.send(msg.encode('utf-8'))
-        #     data = sock.recv(BUFSIZE)
-        #     log.PrintLog("%s -> %s".format(msg, data.decode('utf-8')))
-        #     time.sleep(10)
-        # except socket.timeout:
-        #     pass
-        # except socket.error as errMsg:
-        #     log.PrintLog(errMsg.string)
-        #     recvSockThr.setAlive(False)
-        #     msgHandlerThr.setAlive(False)
-        #     sitelistThr.setAlive(False)
-        #     logThr.setAlive(False)
-        #     g_alive = False
+        try:
+            sock = socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.connect(ADDR)
+            sock.send(msg.encode('utf-8'))
+            data = sock.recv(BUFSIZE)
+            log.PrintLog("%s -> %s".format(msg, data.decode('utf-8')))
+            sock.close()
+            time.sleep(10)
+        except socket.timeout:
+            pass
+        except socket.error as errMsg:
+            log.PrintLog(errMsg.string)
         time.sleep(10)
     log.PrintLog("MAIN END")
 

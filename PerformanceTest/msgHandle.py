@@ -45,6 +45,7 @@ class  msgHandleThread( threading.Thread ):
         while self.alive:
             if len(self.recvQue) > 0:
                 data = self.recvQue.popleft()
+                log.PrintLog("recvQue: {}".format(data))
                 msg  = data.split('|')
                 self.msgHandle(msg[0], msg[1])
             else:

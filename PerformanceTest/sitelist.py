@@ -27,13 +27,52 @@ GetFileUrl     = '/70WKDownloader/getFile.aspx?id=webkeeper&pwd=vhvrn755&version
 
 threadList = []
 
-def getUrl( ishttp, type, filelist ):
-    urllist = []
+def getExt(reqtype):
+    if reqtype.find('L') == -1:
+        ext = ".mdb"
+    else:
+        ext = ".db3"
+    return ext
+
+
+
+def getFileListUrl(isHttp ):
+
+    server = proxyDic['PROXYSERVER']
+    idx = proxyDic['PROXYPORT'].find(',')
+    if idx == -1:
+        httpPort = '8080'
+        httpsPort = '8443'
+    else:
+        tmps = proxyDic['PROXYPORT'].split(',')
+        for data in tmps:
+            if data.find('HTTPS') != -1:
+                httpsPort = data.split(':')[1]
+            elif data.find('HTTP') != -1:
+                httpPort = data.split(':')[1]
+            else:
+                log.PrintLog("Option PROXYPORT is Incorrect(default: 8080, 8443")
+                httpPort = "8080"
+                httpsPort = "8443"
+
+    filelisturl = GetFileListUrl
+    filelisturl = filelisturl.replace('$VERSION',  param['VERSION'])
+    filelisturl = filelisturl.replace('$REQTYPE',  param['REQTYPE'])
+    filelisturl = filelisturl.replace('$LDATE', param['LDATE'])
+
+    if isHttp == 'HTTP':
+        httpurl = 'http' + "://" + server + ":" + httpPort + filelisturl
+    else:
+        httpurl = 'https' + "://" + server + ":" + httpsPort + filelisturl
+
+    return httpurl
+
+
+def getFileUrl( filename ):
 
     version = param['VERSION']
     reqtype = param['REQTYPE']
-    ldate = param['LDATE']
-    ishttp = param['URLTYPE']
+    isHttp = param['URLTYPE']
 
 
     server = proxyDic['PROXYSERVER']
@@ -53,134 +92,82 @@ def getUrl( ishttp, type, filelist ):
                 httpPort = "8080"
                 httpsPort = "8443"
 
-    if type == 'getfilelist':
-        filelisturl =  GetFileListUrl
-        filelisturl = filelisturl.replace('$VERSION', version)
-        filelisturl = filelisturl.replace('$REQTYPE', reqtype)
-        filelisturl = filelisturl.replace('$LDATE', ldate)
+    cnt = 0
+    # 전체 DB 받는 Url  만들기
+    fileurl = GetFileUrl
 
-        httpFullUrl = 'http' + "://" + server + ":" + httpPort + filelisturl
-        httpsFullUrl = 'https' + "://" + server + ":" + httpsPort + filelisturl
+    if reqtype == 'LA' or reqtype == 'LP' or reqtype == 'A' or reqtype == 'P':
+        # 전체 디비를 받는곳
+        fileurl = fileurl.replace('$VERSION', version)
+        fileurl = fileurl.replace('$FILENAME', filename)
+    else:
+        # 증분 DB 받는 url 만들기
+        fileurl = fileurl.replace('$VERSION', version)
+        fileurl = fileurl.replace('$FILENAME', filename)
 
-        if ishttp == 'HTTP':
-            urllist.append(httpFullUrl)
-        elif ishttp == 'HTTPS':
-            urllist.append(httpsFullUrl)
+    if isHttp == 'HTTP':
+        httpurl = 'http' + "://" + server + ":" + httpPort + fileurl
+    else:
+        httpurl = 'https' + "://" + server + ":" + httpsPort + fileurl
 
-    elif type == 'getfile':
-        cnt = 0
-        # 전체 DB 받는 Url  만들기
-        if reqtype == "LA" or reqtype == "LP" or reqtype =="A" or reqtype == "P" :
-            filename = filelist
-            fileurl = GetFileUrl
+    return httpurl
 
-            if reqtype.find('L') == -1:
-                ext = ".ifo"
-            else:
-                ext = ".db3"
+def GetFile( reqtype, filename, name ):
 
-            fileurl = fileurl.replace('$VERSION', version)
-            fileurl = fileurl.replace('$FILENAME', filename + ext)
+    filePath = siteDic['DBDIR'] + os.sep + name
+    if os.path.exists(filePath) is False:
+        os.mkdir(filePath)
 
-            httpFullUrl = 'http' + "://" + server + ":" + httpPort + fileurl
-            httpsFullUrl = 'https' + "://" + server + ":" + httpsPort + fileurl
+    url = getFileUrl(filename)
+    fileFullPath = filePath + os.sep + filename
+    res = requests.get(url, stream=True)
+    if res.status_code == 200:
+        with open(fileFullPath, 'wb') as f:
+            shutil.copyfileobj(res.raw, f)
 
-            if ishttp == 'HTTPS':
-                urllist.append(httpsFullUrl)
-            elif ishttp == 'HTTP':
-                urllist.append(httpFullUrl)
-        else:
-            # 증분 DB 받는 url 만들기
-            for filename in filelist:
-                if filename == '':
-                    continue
+class GetFileListThread( threading.Thread ):
+    def __init__(self, name, cnt ):
+        threading.Thread.__init__(self)
+        self.name  = name
+        self.cnt   = cnt
+        # self.alive = True
 
-                fileurl = GetFileUrl
-
-                if reqtype.find('L') == -1:
-                    ext = ".ifo"
-                else :
-                    ext = ".db3"
-
-
-                fileurl = fileurl.replace('$VERSION', version)
-                fileurl = fileurl.replace('$FILENAME', filename+ext)
-
-                httpFullUrl = 'http' + "://" + server + ":" + httpPort + fileurl
-                httpsFullUrl = 'https' + "://" + server + ":" + httpsPort + fileurl
-
-                if ishttp == 'HTTPS':
-                    urllist.append(httpsFullUrl)
-                elif ishttp == 'HTTP':
-                    urllist.append(httpFullUrl)
-
-                cnt += 1
-
-    return urllist
-
-
-
-def GetFile( type, fileList ):
-
-    log.PrintLog(fileList)
-    filePath = siteDic['DBDIR']
-    urlList = getUrl(type, 'getfile', fileList)
-
-    if len(urlList) > 0 :
-        log.PrintLog("urlList num: {}".format(len(urlList)))
-        i =0
-        for url in urlList:
-            # log.PrintLog("{} filename = {}".format(i, fileList[i]))
-            fileFullPath = filePath + os.sep +  fileList[i]+'.db3'
-            res = requests.get(url, stream=True)
-            if res.status_code == 200:
-                with open(fileFullPath, 'wb') as f:
-                    shutil.copyfileobj(res.raw, f )
-            i += 1
-
-
-
-def GetFileList(name, cnt):
-    i = 0
-    global param
-    try:
-        urlList = []
-        urlList = getUrl(param['URLTYPE'], 'getfilelist', None)
-        # log.PrintLog(httpFullUrl)
-        # log.PrintLog(httpsFullUrl)
-        tmp = ""
-        num = 0
-        fileList = []
-        while i < cnt:
-            try :
-                if len(urlList) >= 0:
-                    res = requests.get(urlList[0], timeout=2, verify=False)
+    def run(self):
+        i = 0
+        try:
+            ext = getExt(param['REQTYPE'])
+            url = getFileListUrl(param['URLTYPE'])
+            # log.PrintLog(url)
+            tmp = ""
+            fileList = []
+            while i < self.cnt:
+                try:
+                    res = requests.get(url, timeout=2, verify=False)
+                    print(res.text)
                     if res.status_code == 200:
-                        if param['REQTYPE'] == 'LA' or param['REQTYPE'] == 'LP':
+                        if param['REQTYPE'] == 'LA' or param['REQTYPE'] == 'LP' or \
+                            param['REQTYPE'] == 'A' or param['REQTYPE'] == 'P':
+                            #  전체 DB
                             data = res.text.split('<BR>')
-                            tmp = data[0]
-                            num = int(tmp[:1])
-                            fileList = data[1]
+                            filename = data[1]
+                            GetFile(param['REQTYPE'], filename, self.name)
                         else:
+                            #  증분 DB
                             data = res.text.split('<BR>')
                             num = int(data[0])
-                            if param['REQTYPE'].find('L') == -1:
-                                ext = ".ifo"
-                            else:
-                                ext = ".db3"
                             fileList = data[1].lower().split(ext)
-
                         if num != 0:
-                            GetFile(type, fileList)
-                else:
-                    log.PrintLog("GetFileList status code({}:{})".format(res.url, res.text))
-            except :
-                pass
-            i += 1
-    except:
-        print("Exception... GetFileList" )
-        return
-
+                            for idx in range(num):
+                                filename = fileList[idx] + ext
+                                GetFile(param['REQTYPE'], filename, self.name)
+                    else:
+                        log.PrintLog("GetFileList status code({}:{})".format(res.url, res.text))
+                except:
+                    pass
+                i += 1
+        except:
+            print("Exception... GetFileList")
+        # log.PrintLog("GetFileList thread is END")
 
 class sitelistThread(threading.Thread):
     def __init__(self, option, msgQue, sendQue):
@@ -201,31 +188,42 @@ class sitelistThread(threading.Thread):
     # DBTYPE=SITELIST,URLTYPE=HTTP,THREADNUM=2,VERSION=8,REQTYPE=LA
     # DBTYPE=BLKPORTS,URLTYPE=HTTP,THREADNUM=2,VERSION=,REQTYPE=
     def httpTest(self, values):
-        dataList = values.split(',')
 
-        for data in dataList:
-            key, value = data.split('=')
-            param[key] = value
+        threadList = []
+        try :
+            dataList = values.split(',')
 
-        thrCnt = int(param['THREADNUM'])
-        if thrCnt <= 0:
-            thrCnt = 1
+            for data in dataList:
+                key, value = data.split('=')
+                param[key] = value
 
-        cnt = int(param['CNT'])
-        for i in range(thrCnt):
-            name = "thread-{}".format(i)
-            t = threading.Thread(target=GetFileList, args=(name, cnt))
-            t.name = name
-            threadList.append(t)
+            thrCnt = int(param['THREADNUM'])
+            if thrCnt <= 0:
+                thrCnt = 1
 
-        startTime = time.time()
-        for id in threadList:
-            id.start()
+            cnt = int(param['CNT'])
+            startTime = time.time()
+            for i in range(thrCnt):
+                name = "thread-{}".format(i)
+                Thr = GetFileListThread(name, cnt)
+                threadList.append(Thr)
 
-        for id in threadList:
-            id.join()
+            for thr in threadList:
+                thr.start()
 
-        endTime = time.time()
+            num = 0
+            cnt = len(threadList)
+            while True:
+                for thr in threadList:
+                    if thr.isAlive() is False:
+                        num += 1
+                if num == cnt :
+                    break
+                time.sleep(0.5)
+            endTime = time.time()
+            log.PrintLog("httpTest Time is {}".format( endTime-startTime))
+        except Exception, e:
+            log.PrintLog("http Test Exception....{}".format(e))
         return endTime - startTime
 
 
