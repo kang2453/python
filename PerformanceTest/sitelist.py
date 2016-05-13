@@ -16,6 +16,7 @@ proxyDic = {}
 
 param = {}
 
+
 cafile='server.wk.somansa.pem'
 keyfile='server.wk.somansa.key'
 passphrase='pass1234'
@@ -165,10 +166,6 @@ class GetFileListThread( threading.Thread ):
                             for idx in range(num):
                                 filename = fileList[idx] + ext
                                 retVal = GetFile(param['REQTYPE'], filename, self.name)
-                                if retVal is True:
-                                    cnt += 1
-                            if num != cnt :
-                                log.PrintLog("filenum of getFile is incorrect({}:{})".format(num,cnt))
                     else:
                         log.PrintLog("GetFileList status code({}:{})".format(res.url, res.text))
                 except:
