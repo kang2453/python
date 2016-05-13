@@ -32,6 +32,7 @@ def getOption(filename):
     configFile = filename
     if os.path.exists(configDir) is False:
         os.mkdir(configDir)
+
     filePath = configDir + os.sep + filename
     with codecs.open(filePath, 'r', encoding='utf-8') as f:
         type = ""
@@ -39,10 +40,8 @@ def getOption(filename):
             msg = f.readline().strip()
             if not msg:
                 break
-
             if msg[0] == '#':
                 continue
-
             if msg.find("[CMD]") != -1:
                 type = 'cmd'
                 continue
@@ -54,11 +53,9 @@ def getOption(filename):
                 continue
 
             ParsingOption(type, msg)
-
         Option['cmd'] = cmddic
         Option['proxy'] = proxydic
         Option['sitelist'] = sitedic
-
     return Option
 
 
@@ -67,10 +64,6 @@ def update( value ):
     try:
         with codecs.open(filePath, 'w', encoding='utf-8') as f:
             f.write(value)
-            # confList = value.split()
-            # for msg in confList:
-            #     print(type(msg))
-            #     f.writeline(msg.encode('utf-8'))
     except :
         log.PrintLog("conf Update Except....")
 
@@ -84,9 +77,9 @@ def configWrite():
         f.writeline('[CMD]')
         confDic(f, cmddic)
         f.writeline('[PROXY]')
-        confDic(f,proxydic)
+        confDic(f, proxydic)
         f.writeline('[SITELIST]')
-        confDic(f,sitedic)
+        confDic(f, sitedic)
 
 
 

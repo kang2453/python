@@ -7,6 +7,7 @@ import threading
 import requests
 import shutil
 import config
+import sys
 
 isStop  = False
 siteDic = {}
@@ -114,16 +115,20 @@ def getFileUrl( filename ):
 
 def GetFile( reqtype, filename, name ):
 
-    filePath = siteDic['DBDIR'] + os.sep + name
-    if os.path.exists(filePath) is False:
-        os.mkdir(filePath)
+    try :
+        filePath = siteDic['DBDIR'] + os.sep + name
+        if os.path.exists(filePath) is False:
+            os.mkdir(filePath)
 
-    url = getFileUrl(filename)
-    fileFullPath = filePath + os.sep + filename
-    res = requests.get(url, stream=True)
-    if res.status_code == 200:
-        with open(fileFullPath, 'wb') as f:
-            shutil.copyfileobj(res.raw, f)
+        url = getFileUrl(filename)
+        fileFullPath = filePath + os.sep + filename
+        res = requests.get(url, verify = False, stream=True)
+        if res.status_code == 200:
+            with open(fileFullPath, 'wb') as f:
+                shutil.copyfileobj(res.raw, f)
+            return True
+    except Exception as e :
+        log.PrintLog(sys.exc_info()[0])
 
 class GetFileListThread( threading.Thread ):
     def __init__(self, name, cnt ):
@@ -138,8 +143,8 @@ class GetFileListThread( threading.Thread ):
             ext = getExt(param['REQTYPE'])
             url = getFileListUrl(param['URLTYPE'])
             # log.PrintLog(url)
-            tmp = ""
             fileList = []
+            cnt = 0
             while i < self.cnt:
                 try:
                     res = requests.get(url, timeout=2, verify=False)
@@ -159,7 +164,11 @@ class GetFileListThread( threading.Thread ):
                         if num != 0:
                             for idx in range(num):
                                 filename = fileList[idx] + ext
-                                GetFile(param['REQTYPE'], filename, self.name)
+                                retVal = GetFile(param['REQTYPE'], filename, self.name)
+                                if retVal is True:
+                                    cnt += 1
+                            if num != cnt :
+                                log.PrintLog("filenum of getFile is incorrect({}:{})".format(num,cnt))
                     else:
                         log.PrintLog("GetFileList status code({}:{})".format(res.url, res.text))
                 except:
@@ -254,8 +263,8 @@ class sitelistThread(threading.Thread):
         # print(self.option)
         siteDic = self.option['sitelist']
         proxyDic= self.option['proxy']
-        log.PrintLog(siteDic)
-        log.PrintLog(proxyDic)
+        # log.PrintLog(siteDic)
+        # log.PrintLog(proxyDic)
         return True
 
     def refreshOption(self, filename):

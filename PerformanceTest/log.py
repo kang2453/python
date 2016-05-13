@@ -20,7 +20,7 @@ class logThread(threading.Thread):
         self.filename = filename
         self.alive    = True
         self.sep      = os.sep
-        self.level    = 'WARNING'
+        self.level    = 'INFO'
         self.filesize = 1024*1024*5 #5M
 
     def isAlive(self):

@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-import codecs
-import threading
 import time
 import log
-import re
-import urllib
-import  socket
+import sys
+import socket
 from collections import deque
 
 import recvSocket
@@ -52,7 +49,7 @@ def main():
 
     while g_alive:
         try:
-            sock = socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.connect(ADDR)
             sock.send(msg.encode('utf-8'))
             data = sock.recv(BUFSIZE)
@@ -61,8 +58,8 @@ def main():
             time.sleep(10)
         except socket.timeout:
             pass
-        except socket.error as errMsg:
-            log.PrintLog(errMsg.string)
+        except Exception as e:
+            log.PrintLog("[main] except :{}".format(sys.exc_info()[0]))
         time.sleep(10)
     log.PrintLog("MAIN END")
 
