@@ -43,8 +43,10 @@ def main():
     msgHandlerThr.start()
     recvSockThr.start()
 
+    cmdDic = Option['cmd']
+
     myip=  recvSocket.myip()
-    ADDR=('192.168.207.50', 10011)
+    ADDR=(cmdDic['IP'], 10011)
     msg =  "CONNECT|{}".format(myip)
     # log.PrintLog(msg)
 
