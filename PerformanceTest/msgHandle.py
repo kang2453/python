@@ -30,6 +30,7 @@ class  msgHandleThread( threading.Thread ):
             self.msgQue.append('RELOAD!config.conf')
         # 명령 수행 MSG
         elif cmd == 'CMD':
+            # sitelist 성능 측정관련 메시지
             self.msgQue.append(value)
         # 업데이트 관련 MSG
         elif cmd == 'UPDATE':

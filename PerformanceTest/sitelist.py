@@ -140,6 +140,7 @@ class GetFileListThread( threading.Thread ):
 
     def run(self):
         i = 0
+        global isStop
         try:
             ext = getExt(param['REQTYPE'])
             url = getFileListUrl(param['URLTYPE'])
@@ -147,6 +148,10 @@ class GetFileListThread( threading.Thread ):
             fileList = []
             cnt = 0
             while i < self.cnt:
+                # 너무 오래 걸려서 정지 시키기
+                if isStop is True:
+                    break
+
                 try:
                     res = requests.get(url, timeout=2, verify=False)
                     print(res.text)
@@ -226,7 +231,7 @@ class sitelistThread(threading.Thread):
                 if num == cnt :
                     break
                 log.PrintLog("GetFileListThread is Executing...")
-                time.sleep(1)
+                time.sleep(0.5)
             endTime = time.time()
             log.PrintLog("httpTest Time is {}".format( endTime-startTime))
         except Exception, e:
