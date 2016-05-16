@@ -54,7 +54,7 @@ def main():
             sock.connect(ADDR)
             sock.send(msg.encode('utf-8'))
             data = sock.recv(BUFSIZE)
-            log.PrintLog("%s -> %s".format(msg, data.decode('utf-8')))
+            log.PrintLog("{} -> {}".format(cmdDic['IP'], data.decode('utf-8')))
             sock.close()
             time.sleep(10)
         except socket.error as e:

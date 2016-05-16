@@ -7,7 +7,7 @@ import threading
 from collections import deque
 
 import os
-
+import sys
 logQue = deque()
 logger = logging.getLogger()
 ALIVE = True
@@ -37,6 +37,13 @@ class logThread(threading.Thread):
         formatter =  logging.Formatter("%(asctime)s %(message)s","%Y-%m-%d %H:%M:%S")
         fileHandler = logging.handlers.RotatingFileHandler(logfilePath, maxBytes=self.filesize, backupCount=10)
         streamHandler = logging.StreamHandler()
+
+
+        stdout_logger = logging.getLogger('STDOUT')
+        stderr_logger = logging.getLogger('STDERR')
+
+        sys.stdout = stdout_logger
+        sys.stderr = stderr_logger
 
         fileHandler.setFormatter(formatter)
         streamHandler.setFormatter(formatter)

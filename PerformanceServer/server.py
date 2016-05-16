@@ -28,7 +28,8 @@ def gAlive(type):
 
 def cmd_msg():
     platform_os = platform.system()
-    if platform_os == 'win':
+    print(platform_os)
+    if platform_os == 'Windows':
         os.system("cls")
     else:
         os.system("clear")
@@ -64,7 +65,7 @@ def main():
             data = cmd_msg()
             print("select cmd: {}".format(data))
         except Exception as e:
-            log.PrintLog("[main] except :{}".format(sys.exc_info()[0]))
+            log.PrintLog("[main] except :{}".format(e.msg))
         time.sleep(1)
 
     log.PrintLog("PerformanceServer end")
