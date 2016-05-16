@@ -35,8 +35,8 @@ class recvSockThread( threading.Thread ):
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            #self.host = myip()
-            self.host = 'localhost'
+            self.host = myip()
+            # self.host = 'localhost'
             ADDR = (self.host, self.port)
             self.sock.bind(ADDR)
             self.sock.listen(5)
@@ -64,8 +64,10 @@ class recvSockThread( threading.Thread ):
                         else:
                             time.sleep(0.5)
                         cliSock.close()
+                    except socket.error as e:
+                        log.PrintLog("recvSocket client Exception({})".format(e))
                     except :
-                        log.PrintLog("recvSocket Exception...")
+                        log.PrintLog("recvSocket client Exception...")
                 self.sock.close()
         except:
             log.PrintLog("RecvSocket Exception....")

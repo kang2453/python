@@ -3,7 +3,6 @@
 import threading
 import time
 import log
-from socket import *
 import socket
 import sys
 
@@ -39,7 +38,7 @@ class recvSockThread( threading.Thread ):
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.host = myip()
-            ADDR = (elf.host, self.port)
+            ADDR = (self.host, self.port)
             self.sock.bind(ADDR)
             self.sock.listen(5)
         except socket.error as msg :
@@ -66,8 +65,8 @@ class recvSockThread( threading.Thread ):
                         else:
                             time.sleep(0.5)
                         cliSock.close()
-                    except socket.error, exception_msg:
-                        log.PrintLog("recvSocket Exception...%s" % (exception_msg))
+                    except socket.error as e:
+                        log.PrintLog("recvSocket client Exception...({})".format(e))
                 self.sock.close()
         except:
             log.PrintLog("RecvSocket Exception....")
