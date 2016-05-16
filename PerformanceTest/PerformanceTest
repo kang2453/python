@@ -1,0 +1,30 @@
+# vi /etc/init.d/PerformanceTest
+#!/bin/bash
+# chkconfig: 234 90 90                ※ chkconfig 등록하기 위해 반드시 필요
+# description: test service          ※ chkconfig 등록하기 위해 반드시 필요
+
+case "$1" in
+start)
+    echo "start"
+    /data/python/PerformanceTest/check.sh
+    ;;
+
+stop)
+    echo "stop"
+    /data/python/PerformanceTest/stop.sh
+    ;;
+
+restart)
+    echo "restart"
+    $0 stop
+    echo "$0 stop"
+    sleep 1
+    $0 start
+    echo "$0 start"
+    ;;
+*)
+    echo "Usage:{start|stop}"
+    exit 1
+
+esac
+    exit 0
