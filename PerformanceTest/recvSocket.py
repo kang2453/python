@@ -33,7 +33,7 @@ class recvSockThread( threading.Thread ):
         self.alive = type
 
     def makeSocket(self):
-        retVal = True
+        retval = True
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -43,8 +43,8 @@ class recvSockThread( threading.Thread ):
             self.sock.listen(5)
         except socket.error as msg :
             log.PrintLog("makeSocket is Fail(%s)"% (msg))
-            retVal = False
-        return retVal
+            retval = False
+        return retval
 
     def run(self):
         log.PrintLog("recvSockThr START")
