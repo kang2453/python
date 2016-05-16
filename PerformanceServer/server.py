@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+
 import os
 import time
-import log
+import writeLog
 import sys
 import platform
 from collections import deque
@@ -17,24 +18,38 @@ BUFSIZE=1024
 
 configFileName = 'config.conf'
 
-
-clientList = []
-
+# clientList = []
 
 def gAlive(type):
     g_alive = type
 
+def isWindows():
+    if platform.system() == 'Windows':
+        return True
+    else:
+        return False
+
+def ReadCmd():
+    lineNum = 1
+    with codecs.open('cmd.txt', 'r', encoding='utf-8') as f:
+        while True:
+            line = f.readline()
+            line = line.strip()
+            if line :
+                print("%d -- %s" % (lineNum, line.strip()))
+                lineNum += 1
+            else:
+                break
 
 
 def cmd_msg():
-    platform_os = platform.system()
-    print(platform_os)
-    if platform_os == 'Windows':
+    if isWindows() is True:
         os.system("cls")
     else:
         os.system("clear")
 
     print("============== WK ProxyServer Performance cmd ==============")
+    ReadCmd()
     print("======= cmd.txt file is select ( which line is cmd ) =======")
     line= input("> ")
     if line :
@@ -50,7 +65,7 @@ def main():
     recvQue = deque()
     sendQue = deque()
 
-    logThr =  log.logThread('log', 'logger.log')
+    logThr =  writeLog.logThread('log', 'logger.log')
     recvSockThr = recvSocket.recvSockThread(recvQue)
     sendSockThr = sendSocket.sendSockThread(sendQue)
 
@@ -58,17 +73,20 @@ def main():
     sendSockThr.start()
     recvSockThr.start()
 
-    log.PrintLog("PerformanceServer start")
+    writeLog.PrintLog("PerformanceServer start")
     time.sleep(1)
     while g_alive:
         try:
             data = cmd_msg()
             print("select cmd: {}".format(data))
+            sendQue.append(data)
+            time.sleep(1)
         except Exception as e:
-            log.PrintLog("[main] except :{}".format(e.msg))
+            writeLog.PrintLog("[main] except :{}".format(e.msg))
         time.sleep(1)
 
-    log.PrintLog("PerformanceServer end")
+    writeLog.PrintLog("PerformanceServer end")
 
 if __name__ == "__main__":
+    # printnull()
     main()

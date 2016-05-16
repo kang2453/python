@@ -2,14 +2,15 @@
 import time
 import threading
 import socket
-import log
+import writeLog
+import recvSocket
 
 HOST = None
 PORT = None
 
 ALIVE = True
 
-global clientList
+
 
 
 def alive(type):
@@ -24,7 +25,6 @@ class sendSockThread(threading.Thread):
         self.alive = True
         self.host = ''
         self.port = 10001
-        self.log = log.logger
         self.sock = -1
 
     def isAlive(self):
@@ -42,31 +42,33 @@ class sendSockThread(threading.Thread):
             sock.connect(ADDR)
             return sock
         except:
-            log.PrintLog("make socket fail({})".format(ip))
+            writeLog.PrintLog("make socket fail({})".format(ip))
             return -1
 
     def sendMsg(self, msg):
-
         if msg :
+            # clientList =[]
+            clientList = recvSocket.getClientList()
+            # clientList.append('192.168.207.151')
             for client in clientList:
                 try :
+                    writeLog.PrintLog("client: {}".format(client))
                     sock = self.makeSocket(client)
                     if sock != -1 :
                         sock.send(msg.encode('utf-8'))
-                        data = sock.recv(1024)
-                        if data:
-                            tmp = data.split('|')
-                            if tmp[1] != 'OK':
-                                log.PrintLog("{}:{} is Incorrect{}".format(client, msg, data))
-
+                        tmp = sock.recv(1024)
+                        if tmp:
+                            data = tmp.decode('utf-8').split('|')
+                            if data[1] != 'OK':
+                                writeLog.PrintLog("{}:{} is Incorrect{}".format(client, msg, data))
+                            else:
+                                writeLog.PrintLog("{}:{} is OK".format(client,data[1]))
                 except:
-                    log.PrintLog("sendMsg {} is fail{}".format(client, msg))
-
-
+                    writeLog.PrintLog("sendMsg {} is fail{}".format(client, msg))
 
 
     def run(self):
-        log.PrintLog("sendSockThr Start")
+        writeLog.PrintLog("sendSockThr Start")
         try:
             while self.alive :
                 if len(self.sendQue) <= 0:
@@ -80,7 +82,7 @@ class sendSockThread(threading.Thread):
                 time.sleep(0.5)
 
         except :
-            log.PrintLog("sendSockThr Exception...")
+            writeLog.PrintLog("sendSockThr Exception...")
 
-        log.PrintLog("sendSockThr End")
+        writeLog.PrintLog("sendSockThr End")
 
