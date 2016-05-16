@@ -57,10 +57,8 @@ def main():
             log.PrintLog("%s -> %s".format(msg, data.decode('utf-8')))
             sock.close()
             time.sleep(10)
-        except socket.timeout:
-            pass
         except socket.error as e:
-            log.PrintLog("[main] exception({})".format(e))
+            log.PrintLog("[main] exception({} - {})".format(e, msg))
         except Exception as e:
             log.PrintLog("[main] except :{}".format(sys.exc_info()[0]))
         time.sleep(10)
