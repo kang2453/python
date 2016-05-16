@@ -55,7 +55,7 @@ class recvSockThread( threading.Thread ):
                     try:
                         cliSock, addrInfo = self.sock.accept()
                         data = cliSock.recv(BUFSIZE)
-                        log.PrintLog("%s is Connected(%s)" % (str(addrInfo), data))
+                        log.PrintLog("%s is Connected(%s)" % (str(addrInfo[0]), data))
                         if data:
                             cmd = data.decode('utf-8')
                             data = cmd.split('|')
