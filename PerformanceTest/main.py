@@ -47,6 +47,7 @@ def main():
     msg =  "CONNECT|{}".format(myip)
     # log.PrintLog(msg)
 
+    log.PrintLog("Performance Test Start")
     while g_alive:
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -58,10 +59,12 @@ def main():
             time.sleep(10)
         except socket.timeout:
             pass
+        except socket.error as e:
+            log.PrintLog("[main] exception({})".format(e))
         except Exception as e:
             log.PrintLog("[main] except :{}".format(sys.exc_info()[0]))
         time.sleep(10)
-    log.PrintLog("MAIN END")
+    log.PrintLog("Performance Test End")
 
 if __name__ == "__main__":
     Option = config.getOption('config.conf')

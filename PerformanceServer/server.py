@@ -28,7 +28,7 @@ def gAlive(type):
 
 def cmd_msg():
     platform_os = platform.system()
-    if platform_os == 'windows':
+    if platform_os == 'win':
         os.system("cls")
     else:
         os.system("clear")
@@ -44,16 +44,12 @@ def cmd_msg():
 
     return cmd.strip()
 
-
-
-
-
 def main():
 
     recvQue = deque()
     sendQue = deque()
 
-    logThr =  log.logThread( 'log', 'logger.log')
+    logThr =  log.logThread('log', 'logger.log')
     recvSockThr = recvSocket.recvSockThread(recvQue)
     sendSockThr = sendSocket.sendSockThread(sendQue)
 
@@ -61,18 +57,17 @@ def main():
     sendSockThr.start()
     recvSockThr.start()
 
-
+    log.PrintLog("PerformanceServer start")
     time.sleep(1)
     while g_alive:
         try:
             data = cmd_msg()
             print("select cmd: {}".format(data))
-            #sendQue.append(data)
         except Exception as e:
             log.PrintLog("[main] except :{}".format(sys.exc_info()[0]))
         time.sleep(1)
 
-    log.PrintLog("MAIN END")
+    log.PrintLog("PerformanceServer end")
 
 if __name__ == "__main__":
     main()
