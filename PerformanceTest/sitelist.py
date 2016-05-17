@@ -36,8 +36,6 @@ def getExt(reqtype):
         ext = ".db3"
     return ext
 
-
-
 def getFileListUrl(isHttp ):
 
     server = proxyDic['PROXYSERVER']
@@ -266,6 +264,9 @@ class sitelistThread(threading.Thread):
         # print(self.option)
         siteDic = self.option['sitelist']
         proxyDic= self.option['proxy']
+
+        if os.path.exists(siteDic['DBDIR']) is False:
+            os.mkdir(siteDic['DBDIR'])
         # log.PrintLog(siteDic)
         # log.PrintLog(proxyDic)
         return True

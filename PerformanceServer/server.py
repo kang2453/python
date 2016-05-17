@@ -50,9 +50,12 @@ def cmd_msg():
 
     print("============== WK ProxyServer Performance cmd ==============")
     ReadCmd()
+    print("======================= ReFresh : R ========================")
     print("======= cmd.txt file is select ( which line is cmd ) =======")
     line= input("> ")
     if line :
+        if line == 'R':
+            return ''
         if int(line) >0 :
             with codecs.open('cmd.txt', 'r', encoding='utf=8') as f:
                 for idx in range(int(line)):
@@ -79,7 +82,9 @@ def main():
         try:
             data = cmd_msg()
             print("select cmd: {}".format(data))
-            sendQue.append(data)
+            if data:
+                sendQue.append(data)
+
             time.sleep(1)
         except Exception as e:
             writeLog.PrintLog("[main] except :{}".format(e.msg))
