@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import time
 import threading
-import log
+import writeLog
 import config
 from collections import deque
 
@@ -12,7 +12,7 @@ class  msgHandleThread( threading.Thread ):
         self.recvQue = recvQue
         self.msgQue  = msgQue
         self.alive   = True
-        self.log     = log.logger
+        self.log     = writeLog
 
     def isAlive(self):
         return self.alive
@@ -36,22 +36,22 @@ class  msgHandleThread( threading.Thread ):
         elif cmd == 'UPDATE':
             self.msgQue.append(value)
         else:
-            log.PrintLog("%s:%s msg is not define" % (cmd, value))
+            writeLog.PrintLog("%s:%s msg is not define" % (cmd, value))
 
 
 
 
     def run(self):
-        log.PrintLog("msgHandler START")
+        writeLog.PrintLog("msgHandler START")
         while self.alive:
             if len(self.recvQue) > 0:
                 data = self.recvQue.popleft()
-                log.PrintLog("recvQue: {}".format(data))
+                writeLog.PrintLog("recvQue: {}".format(data))
                 msg  = data.split('|')
                 self.msgHandle(msg[0], msg[1])
             else:
                 time.sleep(0.5)
 
-        log.PrintLog("msgHandler is Exit")
+        writeLog.PrintLog("msgHandler is Exit")
 
 

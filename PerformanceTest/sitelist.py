@@ -2,7 +2,7 @@
 
 import os
 import time
-import log
+import writeLog
 import threading
 import requests
 import shutil
@@ -53,7 +53,7 @@ def getFileListUrl(isHttp ):
             elif data.find('HTTP') != -1:
                 httpPort = data.split(':')[1]
             else:
-                log.PrintLog("Option PROXYPORT is Incorrect(default: 8080, 8443")
+                writeLog.PrintLog("Option PROXYPORT is Incorrect(default: 8080, 8443")
                 httpPort = "8080"
                 httpsPort = "8443"
 
@@ -90,7 +90,7 @@ def getFileUrl( filename ):
             elif data.find('HTTP') != -1:
                 httpPort = data.split(':')[1]
             else:
-                log.PrintLog("Option PROXYPORT is Incorrect(default: 8080, 8443")
+                writeLog.PrintLog("Option PROXYPORT is Incorrect(default: 8080, 8443")
                 httpPort = "8080"
                 httpsPort = "8443"
 
@@ -129,7 +129,7 @@ def GetFile( reqtype, filename, name ):
                 shutil.copyfileobj(res.raw, f)
             return True
     except Exception as e :
-        log.PrintLog(sys.exc_info()[0])
+        writeLog.PrintLog(sys.exc_info()[0])
 
 class GetFileListThread( threading.Thread ):
     def __init__(self, name, cnt ):
@@ -172,7 +172,7 @@ class GetFileListThread( threading.Thread ):
                                 filename = fileList[idx] + ext
                                 retVal = GetFile(param['REQTYPE'], filename, self.name)
                     else:
-                        log.PrintLog("GetFileList status code({}:{})".format(res.url, res.text))
+                        writeLog.PrintLog("GetFileList status code({}:{})".format(res.url, res.text))
                 except:
                     pass
                 i += 1
@@ -187,7 +187,7 @@ class sitelistThread(threading.Thread):
         self.sendQue = sendQue
         self.alive   = True
         self.option  = option
-        self.log     = log.logger
+        self.log     = writeLog
 
 
     def isAlive(self):
@@ -230,12 +230,12 @@ class sitelistThread(threading.Thread):
                         num += 1
                 if num == cnt :
                     break
-                log.PrintLog("GetFileListThread is Executing...")
+                    writeLog.PrintLog("GetFileListThread is Executing...")
                 time.sleep(0.5)
             endTime = time.time()
-            log.PrintLog("httpTest Time is {}".format( endTime-startTime))
-        except Exception, e:
-            log.PrintLog("http Test Exception....{}".format(e))
+            writeLog.PrintLog("httpTest Time is {}".format( endTime-startTime))
+        except Exception as e:
+            writeLog.PrintLog("http Test Exception....{}".format(e))
         return endTime - startTime
 
 
@@ -285,7 +285,7 @@ class sitelistThread(threading.Thread):
                 # START!DBTYPE=BLKPORTS,URLTYPE=HTTP,THREADNUM=2,VERSION=,REQTYPE=
                 retVal = self.httpTest(data[1])
                 if retVal is None:
-                    log.PrintLog("httpTest is InCorrect")
+                    writeLog.PrintLog("httpTest is InCorrect")
                 else:
                     self.sendQue.append(retVal)
             elif data[0] == 'STOP':
@@ -293,16 +293,16 @@ class sitelistThread(threading.Thread):
             elif data[0] == 'DELETE':
                 self.deleteFiles()
             else:
-                log.PrintLog("%s msg is not Define".format(msg))
+                writeLog.PrintLog("%s msg is not Define".format(msg))
         except :
-            log.PrintLog("%s msg is not Define".format(msg))
+            writeLog.PrintLog("%s msg is not Define".format(msg))
 
 
     def run(self):
-        log.PrintLog("SiteListThread START")
+        writeLog.PrintLog("SiteListThread START")
         retVal = self.getOption()
         if retVal is False:
-            log.PrintLog("sitelistThr option Parsing is Fial(", self.option, ")")
+            writeLog.PrintLog("sitelistThr option Parsing is Fial(", self.option, ")")
             self.setAlive(False)
 
         if os.path.exists(siteDic['DBDIR']) is False:
@@ -317,7 +317,7 @@ class sitelistThread(threading.Thread):
             if data:
                 self.msgHandler(data)
 
-        log.PrintLog("SiteListThread END")
+        writeLog.PrintLog("SiteListThread END")
 
 
 

@@ -48,6 +48,7 @@ def main():
     # log.PrintLog(msg)
 
     writeLog.PrintLog("Performance Test Start")
+    print("Performance Test Start")
     while g_alive:
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -62,7 +63,8 @@ def main():
         except Exception as e:
             writeLog.PrintLog("[main] except :{}".format(sys.exc_info()[0]))
         time.sleep(10)
-        writeLog.PrintLog("Performance Test End")
+    writeLog.PrintLog("Performance Test End")
+    print("Performance Test End")
 
 if __name__ == "__main__":
     Option = config.getOption('config.conf')

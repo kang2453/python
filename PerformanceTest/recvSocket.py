@@ -2,7 +2,7 @@
 
 import threading
 import time
-import log
+import writeLog
 import socket
 import sys
 
@@ -23,7 +23,7 @@ class recvSockThread( threading.Thread ):
         self.cmdDic  = self.option['cmd']
         self.host    = ''
         self.port    = 10001
-        self.log     = log.logger
+        self.log     = writeLog
         self.sock = -1
 
     def isAlive(self):
@@ -42,12 +42,12 @@ class recvSockThread( threading.Thread ):
             self.sock.bind(ADDR)
             self.sock.listen(5)
         except socket.error as msg :
-            log.PrintLog("makeSocket is Fail(%s)"% (msg))
+            writeLog.PrintLog("makeSocket is Fail(%s)"% (msg))
             retval = False
         return retval
 
     def run(self):
-        log.PrintLog("recvSockThr START")
+        writeLog.PrintLog("recvSockThr START")
         try:
             retVal = True
             retVal = self.makeSocket()
@@ -56,7 +56,7 @@ class recvSockThread( threading.Thread ):
                     try:
                         cliSock, addrInfo = self.sock.accept()
                         data = cliSock.recv(BUFSIZE)
-                        log.PrintLog("%s is Connected(%s)" % (str(addrInfo), data))
+                        writeLog.PrintLog("%s is Connected(%s)" % (str(addrInfo), data))
                         if data:
                             cmd = data.split('|')
                             self.recvQue.append(data.decode('utf-8'))
@@ -66,11 +66,11 @@ class recvSockThread( threading.Thread ):
                             time.sleep(0.5)
                         cliSock.close()
                     except socket.error as e:
-                        log.PrintLog("recvSocket client Exception...({})".format(e))
+                        writeLog.PrintLog("recvSocket client Exception...({})".format(e))
                 self.sock.close()
         except:
-            log.PrintLog("RecvSocket Exception....")
-        log.PrintLog("recvSockThr END")
+            writeLog.PrintLog("RecvSocket Exception....")
+        writeLog.PrintLog("recvSockThr END")
 
 
 
