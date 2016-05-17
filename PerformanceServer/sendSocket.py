@@ -4,6 +4,7 @@ import threading
 import socket
 import writeLog
 import recvSocket
+import codecs
 
 HOST = None
 PORT = None
@@ -16,6 +17,20 @@ ALIVE = True
 def alive(type):
     print("Socket Alive END")
     ALIVE = type
+
+
+def readConfig( filePath ):
+    data = ''
+    with codecs.open(filePath, 'r', encoding='utf-8') as f:
+        while True:
+            tmp = f.readline()
+            if tmp :
+                data += tmp
+            else :
+                break
+
+    return data
+
 
 
 class sendSockThread(threading.Thread):
@@ -77,6 +92,11 @@ class sendSockThread(threading.Thread):
 
                 data = self.sendQue.popleft()
                 if data:
+                    tmp = data.split('|')
+                    if tmp[0] == 'OPTION':
+                        readData = readConfig(tmp[1])
+                        data = tmp[0]+'|'+ readData
+
                     self.sendMsg(data)
 
                 time.sleep(0.5)
