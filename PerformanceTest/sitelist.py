@@ -279,7 +279,7 @@ class sitelistThread(threading.Thread):
         try :
             data = msg.split('!')
             if data[0] == 'RELOAD':
-                self.getOption(data[1])
+                self.refreshOption(data[1])
             elif data[0] == 'START':
                 # START!DBTYPE=SITELIST,URLTYPE=HTTP,THREADNUM=2,VERSION=8,REQTYPE=LA,LDATE=20160501000000,CNT=10
                 # START!DBTYPE=BLKPORTS,URLTYPE=HTTP,THREADNUM=2,VERSION=,REQTYPE=

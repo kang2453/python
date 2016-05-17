@@ -30,7 +30,6 @@ def ParsingOption(type, msg):
             sitedic[tmp[0]] = tmp[1]
 
 def getOption(filename):
-    configFile = filename
     if os.path.exists(configDir) is False:
         os.mkdir(configDir)
 
