@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import time
-import log
+import writeLog
 import sys
 import socket
 from collections import deque
@@ -30,7 +30,7 @@ def main():
     msgQue = deque()
     sendQue = deque()
 
-    logThr =  log.logThread( 'log', 'logger.log')
+    logThr =  writeLog.logThread( 'log', 'logger.log')
     sitelistThr = sitelist.sitelistThread( Option, msgQue, sendQue )
     msgHandlerThr = msgHandle.msgHandleThread(recvQue, msgQue)
     recvSockThr = recvSocket.recvSockThread(Option, recvQue)
@@ -47,22 +47,22 @@ def main():
     msg =  "CONNECT|{}".format(myip)
     # log.PrintLog(msg)
 
-    log.PrintLog("Performance Test Start")
+    writeLog.PrintLog("Performance Test Start")
     while g_alive:
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.connect(ADDR)
             sock.send(msg.encode('utf-8'))
             data = sock.recv(BUFSIZE)
-            log.PrintLog("{} -> {}".format(cmdDic['IP'], data.decode('utf-8')))
+            writeLog.PrintLog("{} -> {}".format(cmdDic['IP'], data.decode('utf-8')))
             sock.close()
             time.sleep(10)
         except socket.error as e:
-            log.PrintLog("[main] exception({} - {})".format(e, msg))
+            writeLog.PrintLog("[main] exception({} - {})".format(e, msg))
         except Exception as e:
-            log.PrintLog("[main] except :{}".format(sys.exc_info()[0]))
+            writeLog.PrintLog("[main] except :{}".format(sys.exc_info()[0]))
         time.sleep(10)
-    log.PrintLog("Performance Test End")
+        writeLog.PrintLog("Performance Test End")
 
 if __name__ == "__main__":
     Option = config.getOption('config.conf')
