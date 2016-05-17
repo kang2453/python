@@ -2,8 +2,9 @@
 
 import codecs
 import os
-import log
+import writeLog
 import sys
+import platform
 
 
 # option담을 DIC
@@ -58,14 +59,29 @@ def getOption(filename):
         Option['sitelist'] = sitedic
     return Option
 
+def isWindows():
+    if platform.system() == 'Windows':
+        return True
+    else:
+        return False
+
 
 def update( value ):
+    isWin = isWindows()
+    linesep = ''
+    if isWin is True:
+        linesep = '\r\n'
+    else:
+        linesep = '\n'
+
     filePath = configDir + os.sep + configFile
     try:
         with codecs.open(filePath, 'w', encoding='utf-8') as f:
+            if isWin is False:
+                value = value.replace('\r\n','\n')
             f.write(value)
     except :
-        log.PrintLog("conf Update Except....")
+        writeLog.PrintLog("conf Update Except....")
 
 def confDic( f, dic ):
     pass
