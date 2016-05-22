@@ -1,0 +1,7 @@
+PerformanceServer/.idea/
+PerformanceServer/__pycache__/
+PerformanceServer/log/
+PerformanceTest/.idea/
+PerformanceTest/__pycache__/
+PerformanceTest/log/
+
